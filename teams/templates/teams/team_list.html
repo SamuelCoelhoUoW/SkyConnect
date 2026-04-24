@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Teams - Sky Connect{% endblock %}
+
+{% block content %}
+<h1>Team Page</h1>
+
+<!-- Search and filters -->
+<form method="GET" action="{% url 'team_list' %}">
+    <input type="text" name="search" placeholder="Search Teams..."
+           value="{{ search_query }}">
+
+    <select name="department">
+        <option value="">All Departments</option>
+        {% for dept in departments %}
+            <option value="{{ dept.id }}"
+                {% if department_filter == dept.id|stringformat:"d" %}selected{% endif %}>
+                {{ dept.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <select name="sort">
+        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Sort by Name</option>
+        <option value="department" {% if sort_by == 'department' %}selected{% endif %}>Sort by Department</option>
+    </select>
+
+    <button type="submit">Search</button>
+</form>
+
+<!-- Team cards -->
+{% for team in teams %}
+    <div style="background:white; padding:1rem; margin:1rem 0; border-radius:8px; border:1px solid #ddd;">
+        <h3>
+            <a href="{% url 'team_detail' team.id %}">{{ team.name }}</a>
+            <span style="background:#22c55e; color:white; padding:2px 8px; border-radius:12px; font-size:12px;">
+                {{ team.get_status_display }}
+            </span>
+        </h3>
+        <p>{{ team.manager }} &nbsp; {{ team.members.count }} Members &nbsp; {{ team.repositories.count }} Repositories</p>
+    </div>
+{% empty %}
+    <p>No teams found.</p>
+{% endfor %}
+{% endblock %}
