@@ -1,46 +1,75 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Teams - Sky Connect{% endblock %}
+{% block title %}Teams — Sky Connect{% endblock %}
+{% block nav_teams %}active{% endblock %}
+
+{% block page_title %}<h1>Team Page</h1>{% endblock %}
 
 {% block content %}
-<h1>Team Page</h1>
 
-<!-- Search and filters -->
+<!-- Search and filter bar -->
 <form method="GET" action="{% url 'team_list' %}">
-    <input type="text" name="search" placeholder="Search Teams..."
-           value="{{ search_query }}">
+    <div class="filter-bar">
+        <div class="search-wrapper">
+            <i class="bi bi-search"></i>
+            <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Search Teams...."
+                value="{{ search_query }}">
+        </div>
 
-    <select name="department">
-        <option value="">All Departments</option>
-        {% for dept in departments %}
-            <option value="{{ dept.id }}"
-                {% if department_filter == dept.id|stringformat:"d" %}selected{% endif %}>
-                {{ dept.name }}
-            </option>
-        {% endfor %}
-    </select>
+        <select name="department" class="filter-select">
+            <option value="">All Departments</option>
+            {% for dept in departments %}
+                <option value="{{ dept.id }}"
+                    {% if department_filter == dept.id|stringformat:"d" %}selected{% endif %}>
+                    {{ dept.name }}
+                </option>
+            {% endfor %}
+        </select>
 
-    <select name="sort">
-        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Sort by Name</option>
-        <option value="department" {% if sort_by == 'department' %}selected{% endif %}>Sort by Department</option>
-    </select>
+        <select name="sort" class="filter-select">
+            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Sort by Name</option>
+            <option value="department" {% if sort_by == 'department' %}selected{% endif %}>Sort by Department</option>
+        </select>
 
-    <button type="submit">Search</button>
+        <button type="submit" class="btn-search">Search</button>
+    </div>
 </form>
 
 <!-- Team cards -->
 {% for team in teams %}
-    <div style="background:white; padding:1rem; margin:1rem 0; border-radius:8px; border:1px solid #ddd;">
-        <h3>
-            <a href="{% url 'team_detail' team.id %}">{{ team.name }}</a>
-            <span style="background:#22c55e; color:white; padding:2px 8px; border-radius:12px; font-size:12px;">
-                {{ team.get_status_display }}
-            </span>
-        </h3>
-        <p>{{ team.manager }} &nbsp; {{ team.members.count }} Members &nbsp; {{ team.repositories.count }} Repositories</p>
+    <div class="team-card">
+        <div class="team-card-left">
+            <div>
+                <a href="{% url 'team_detail' team.id %}" class="team-card-name">
+                    {{ team.name }}
+                    <span class="badge-status
+                        {% if team.status == 'active' %}badge-active
+                        {% elif team.status == 'inactive' %}badge-inactive
+                        {% else %}badge-restructuring{% endif %}">
+                        {{ team.get_status_display }}
+                    </span>
+                </a>
+            </div>
+            <div class="team-card-meta">
+                <span><strong>{{ team.manager }}</strong></span>
+                <span>{{ team.members.count }} Members</span>
+                <span>{{ team.repositories.count }} Repositories</span>
+            </div>
+        </div>
+        <div class="team-card-right">
+            <a href="{% url 'team_detail' team.id %}?tab=members" class="btn-contact">Contact</a>
+        </div>
     </div>
 {% empty %}
-    <p>No teams found.</p>
+    <div class="empty-state">
+        <i class="bi bi-people" style="font-size:2rem; display:block; margin-bottom:8px;"></i>
+        No teams found matching your search.
+    </div>
 {% endfor %}
+
 {% endblock %}

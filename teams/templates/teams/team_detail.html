@@ -1,108 +1,270 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ team.name }} - Sky Connect{% endblock %}
+{% block title %}{{ team.name }} — Sky Connect{% endblock %}
+{% block nav_teams %}active{% endblock %}
+
+{% block page_title %}<h1>Team Profile</h1>{% endblock %}
 
 {% block content %}
-<a href="{% url 'team_list' %}">&larr; Back to Teams</a>
 
-<h1>{{ team.name }}</h1>
-<p>{{ team.manager }} - {{ team.manager_role }}</p>
+<!-- Back link -->
+<a href="{% url 'team_list' %}" class="back-link">
+    <i class="bi bi-arrow-left"></i> Teams
+</a>
+
+<!-- Team banner -->
+<div class="team-banner">
+    <h1>{{ team.name }}</h1>
+    <div class="team-banner-manager">
+        <div class="manager-avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="manager-info">
+            <span class="manager-name">{{ team.manager }}</span>
+            <span class="manager-role">{{ team.manager_role }}</span>
+        </div>
+    </div>
+    <div class="team-banner-actions">
+        {% if team.email %}
+            <a href="mailto:{{ team.email }}" class="btn-message-team">
+                <i class="bi bi-envelope-fill"></i> Message Team
+            </a>
+        {% else %}
+            <span class="btn-message-team">
+                <i class="bi bi-envelope-fill"></i> Message Team
+            </span>
+        {% endif %}
+        <a href="/schedule/" class="btn-schedule">
+            <i class="bi bi-calendar-fill"></i> Schedule Meeting
+        </a>
+    </div>
+</div>
 
 <!-- Tab navigation -->
-<div style="display:flex; gap:2rem; border-bottom:1px solid #ddd; margin:1.5rem 0;">
-    <a href="?tab=overview" {% if active_tab == 'overview' %}style="border-bottom:2px solid #0072ce;"{% endif %}>Overview</a>
-    <a href="?tab=members" {% if active_tab == 'members' %}style="border-bottom:2px solid #0072ce;"{% endif %}>Members</a>
-    <a href="?tab=repositories" {% if active_tab == 'repositories' %}style="border-bottom:2px solid #0072ce;"{% endif %}>Repositories</a>
-    <a href="?tab=dependencies" {% if active_tab == 'dependencies' %}style="border-bottom:2px solid #0072ce;"{% endif %}>Dependencies</a>
+<div class="tab-nav">
+    <a href="?tab=overview"
+       class="tab-link {% if active_tab == 'overview' %}active{% endif %}">
+        Overview
+    </a>
+    <a href="?tab=members"
+       class="tab-link {% if active_tab == 'members' %}active{% endif %}">
+        Members
+    </a>
+    <a href="?tab=repositories"
+       class="tab-link {% if active_tab == 'repositories' %}active{% endif %}">
+        Repositories
+    </a>
+    <a href="?tab=dependencies"
+       class="tab-link {% if active_tab == 'dependencies' %}active{% endif %}">
+        Dependencies
+    </a>
 </div>
 
-<!-- OVERVIEW TAB -->
+<!-- ═══ OVERVIEW TAB ═══ -->
 {% if active_tab == 'overview' %}
-<div>
-    <h2>About the Team</h2>
-    <p>{{ team.description }}</p>
+<div class="overview-grid">
 
-    <div style="display:flex; gap:2rem; margin-top:1.5rem;">
-        <div>
-            <strong>Department</strong>
-            <p>{{ team.department.name }}</p>
+    <div class="overview-section">
+        <h2>About the Team</h2>
+        <p>{{ team.description|default:"No description available." }}</p>
+
+        <div class="overview-meta">
+            <div class="meta-item">
+                <label>Department</label>
+                <p>{{ team.department.name }}</p>
+            </div>
+            <div class="meta-item">
+                <label>Location</label>
+                <p>{{ team.location|default:"Not specified" }}</p>
+            </div>
+            {% if team.email %}
+            <div class="meta-item">
+                <label>Email</label>
+                <p>{{ team.email }}</p>
+            </div>
+            {% endif %}
+            {% if team.slack_channel %}
+            <div class="meta-item">
+                <label>Slack Channel</label>
+                <p>{{ team.slack_channel }}</p>
+            </div>
+            {% endif %}
         </div>
-        <div>
-            <strong>Location</strong>
-            <p>{{ team.location }}</p>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <label>Team Members</label>
+                <p>{{ members.count }}</p>
+            </div>
+            <div class="stat-item">
+                <label>Repositories</label>
+                <p>{{ repositories.count }}</p>
+            </div>
+            <div class="stat-item">
+                <label>Dependencies</label>
+                <p>{{ dependencies.count }}</p>
+            </div>
         </div>
     </div>
 
-    <div style="display:flex; gap:2rem; margin-top:1rem;">
-        <div>
-            <strong>Team Members</strong>
-            <p>{{ members.count }}</p>
+    <!-- Right sidebar panel -->
+    <div>
+        <div class="sidebar-panel">
+            <h3>Key Contacts</h3>
+            {% for member in members %}
+                {% if member.role == 'manager' or member.role == 'architect' or member.role == 'lead' %}
+                <div class="contact-item">
+                    <div class="contact-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                        <div class="contact-name">{{ member.name }}</div>
+                        <div class="contact-role">{{ member.job_title }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
-        <div>
-            <strong>Repositories</strong>
-            <p>{{ repositories.count }}</p>
+
+        <div class="links-section">
+            <h3>Links</h3>
+            <a href="#">GitHub</a>
+            <a href="#">Team Documentation</a>
+            <a href="#">Team Calendar</a>
         </div>
     </div>
 
-    {% if team.email %}
-    <div style="margin-top:1.5rem;">
-        <strong>Contact</strong>
-        <p>{{ team.email }}</p>
-    </div>
-    {% endif %}
 </div>
 {% endif %}
 
-<!-- MEMBERS TAB -->
+<!-- ═══ MEMBERS TAB ═══ -->
 {% if active_tab == 'members' %}
-<div>
+
+<div class="role-filter">
+    <a href="?tab=members" class="role-pill {% if not role_filter %}active{% endif %}">All Roles</a>
+    <a href="?tab=members&role=engineer" class="role-pill {% if role_filter == 'engineer' %}active{% endif %}">Engineers</a>
+    <a href="?tab=members&role=architect" class="role-pill {% if role_filter == 'architect' %}active{% endif %}">Architects</a>
+    <a href="?tab=members&role=manager" class="role-pill {% if role_filter == 'manager' %}active{% endif %}">Managers</a>
+    <a href="?tab=members&role=lead" class="role-pill {% if role_filter == 'lead' %}active{% endif %}">Leads</a>
+</div>
+
+<div class="members-grid">
     {% for member in members %}
-    <div style="background:white; padding:1rem; margin:0.5rem 0; border-radius:8px; border:1px solid #ddd;">
-        <strong>{{ member.name }}</strong>
-        <p>{{ member.job_title }}</p>
-        {% if member.email %}<p>{{ member.email }}</p>{% endif %}
-        {% if member.phone %}<p>{{ member.phone }}</p>{% endif %}
-    </div>
+        {% if not role_filter or member.role == role_filter %}
+        <div class="member-card">
+            <div class="member-avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="member-name">{{ member.name }}</div>
+            <div class="member-title">{{ member.job_title }}</div>
+            <div class="member-links">
+                {% if member.email %}
+                    <a href="mailto:{{ member.email }}">
+                        <i class="bi bi-envelope"></i> {{ member.email }}
+                    </a>
+                {% endif %}
+                {% if member.phone %}
+                    <a href="tel:{{ member.phone }}">
+                        <i class="bi bi-telephone"></i> {{ member.phone }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     {% empty %}
-    <p>No members found.</p>
+        <div class="empty-state">No members found.</div>
     {% endfor %}
 </div>
+
 {% endif %}
 
-<!-- REPOSITORIES TAB -->
+<!-- ═══ REPOSITORIES TAB ═══ -->
 {% if active_tab == 'repositories' %}
-<div>
-    {% for repo in repositories %}
-    <div style="background:#f0f0f0; padding:1rem; margin:0.5rem 0; border-radius:8px;">
-        <strong>{{ repo.name }}</strong>
-        <p>{{ repo.description }}</p>
-        {% if repo.url %}<a href="{{ repo.url }}">{{ repo.url }}</a>{% endif %}
+
+<div class="repo-filter-bar">
+    <div class="search-wrapper" style="max-width:280px;">
+        <i class="bi bi-search"></i>
+        <input type="text" class="search-input" placeholder="Search repositories....">
     </div>
-    {% empty %}
-    <p>No repositories found.</p>
-    {% endfor %}
+    <select class="filter-select">
+        <option>Sort by: Last Updated</option>
+        <option>Sort by: Name</option>
+    </select>
 </div>
+
+{% for repo in repositories %}
+    <div class="repo-card">
+        <div class="repo-card-header">
+            <span class="repo-name">{{ repo.name }}</span>
+            <span class="repo-updated">Updated {{ repo.updated_at|timesince }} ago</span>
+        </div>
+        <p class="repo-desc">{{ repo.description|default:"No description available." }}</p>
+    </div>
+{% empty %}
+    <div class="empty-state">No repositories found.</div>
+{% endfor %}
+
 {% endif %}
 
-<!-- DEPENDENCIES TAB -->
+<!-- ═══ DEPENDENCIES TAB ═══ -->
 {% if active_tab == 'dependencies' %}
-<div>
-    {% for dep in dependencies %}
-    <div style="background:white; padding:1rem; margin:0.5rem 0; border-radius:8px; border:1px solid #ddd;">
-        <strong>{{ dep.to_team.name }}</strong>
-        <span style="padding:2px 8px; border-radius:12px; font-size:12px;
-            {% if dep.dependency_type == 'upstream' %}background:#dbeafe; color:#1e40af;
-            {% else %}background:#fce7f3; color:#9d174d;{% endif %}">
-            {{ dep.get_dependency_type_display }}
-        </span>
-        <p>{{ dep.to_team.manager }}</p>
-        <p>{{ dep.to_team.get_status_display }}</p>
+
+<div class="dep-filter-bar">
+    <div class="search-wrapper" style="max-width:240px;">
+        <i class="bi bi-search"></i>
+        <input type="text" class="search-input" placeholder="Search teams....">
     </div>
-    {% empty %}
-    <p>No dependencies found.</p>
-    {% endfor %}
+    <a href="?tab=dependencies" class="role-pill {% if not dep_filter %}active{% endif %}">All Dependencies</a>
+    <a href="?tab=dependencies&dep=upstream" class="role-pill {% if dep_filter == 'upstream' %}active{% endif %}">Upstream</a>
+    <a href="?tab=dependencies&dep=downstream" class="role-pill {% if dep_filter == 'downstream' %}active{% endif %}">Downstream</a>
 </div>
+
+<table class="dep-table">
+    <thead>
+        <tr>
+            <th>Team Name</th>
+            <th>Type</th>
+            <th>Manager</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dep in dependencies %}
+            {% if not dep_filter or dep.dependency_type == dep_filter %}
+            <tr>
+                <td class="dep-team-name">{{ dep.to_team.name }}</td>
+                <td>
+                    <span class="badge-status {% if dep.dependency_type == 'upstream' %}badge-upstream{% else %}badge-downstream{% endif %}">
+                        {{ dep.get_dependency_type_display }}
+                    </span>
+                </td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div class="contact-avatar" style="width:28px;height:28px;font-size:12px;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        {{ dep.to_team.manager }}
+                    </div>
+                </td>
+                <td>
+                    <span class="badge-status
+                        {% if dep.to_team.status == 'active' %}badge-active
+                        {% elif dep.to_team.status == 'inactive' %}badge-inactive
+                        {% else %}badge-restructuring{% endif %}">
+                        {{ dep.to_team.get_status_display }}
+                    </span>
+                </td>
+            </tr>
+            {% endif %}
+        {% empty %}
+            <tr>
+                <td colspan="4" class="empty-state">No dependencies found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endif %}
 
 {% endblock %}

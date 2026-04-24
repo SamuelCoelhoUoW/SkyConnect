@@ -5,26 +5,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sky Connect{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav>
-        <a href="/teams/">Teams</a>
-        <a href="/messages/">Messages</a>
-        {% if user.is_authenticated %}
-            <span>{{ user.username }}</span>
-            <a href="/logout/">Logout</a>
-        {% else %}
-            <a href="/login/">Login</a>
-            <a href="/signup/">Sign Up</a>
-        {% endif %}
-    </nav>
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<div class="app-wrapper">
 
-    {% block extra_js %}{% endblock %}
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-cloud">
+                <i class="bi bi-cloud-fill"></i>
+            </div>
+            <span class="logo-text">Sky Connect</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/teams/" class="nav-item {% block nav_teams %}{% endblock %}">
+                <i class="bi bi-people-fill"></i>
+                <span>Teams</span>
+            </a>
+            <a href="/organisation/" class="nav-item {% block nav_org %}{% endblock %}">
+                <i class="bi bi-diagram-3-fill"></i>
+                <span>Organisation</span>
+            </a>
+            <a href="/messages/" class="nav-item {% block nav_messages %}{% endblock %}">
+                <i class="bi bi-chat-dots-fill"></i>
+                <span>Messages</span>
+            </a>
+            <a href="/schedule/" class="nav-item {% block nav_schedule %}{% endblock %}">
+                <i class="bi bi-calendar-fill"></i>
+                <span>Schedule</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main content area -->
+    <div class="main-area">
+
+        <!-- Top bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                {% block page_title %}{% endblock %}
+            </div>
+            <div class="topbar-right">
+                {% if user.is_authenticated %}
+                    <div class="user-pill">
+                        <i class="bi bi-person-circle"></i>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <a href="/logout/" class="btn btn-sm btn-outline-secondary ms-2">Logout</a>
+                {% else %}
+                    <a href="/login/" class="btn btn-sm btn-outline-primary me-2">Login</a>
+                    <a href="/signup/" class="btn btn-sm btn-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Page content -->
+        <main class="page-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>
