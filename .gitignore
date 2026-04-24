@@ -1,0 +1,10 @@
+# Virtual environment
+vmachine/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code
+.vscode/
