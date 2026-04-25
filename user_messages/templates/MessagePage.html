@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/Messages.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'images/TitleLogo.svg' %}">
+
+<div class="messagesLayout">
+    <div class="messagesLeft">
+        <div class="messagesCard messagesMenuCard">
+            <div class="messagesMenuList">
+                <div class="messagesMenuItem activeTab" onclick="switchTab('new', event)">New Message</div>
+                <div class="messagesMenuItem" onclick="switchTab('inbox', event)">Inbox</div>
+                <div class="messagesMenuItem" onclick="switchTab('sent', event)">Sent</div>
+                <div class="messagesMenuItem" onclick="switchTab('draft', event)">Draft</div>
+            </div>
+        </div>
+
+        <div class="messagesCard">
+            <div id="left-new" class="tabContent">
+                <h3>Recent Messages</h3>
+                <p>Start a new conversation</p>
+            </div>
+
+            <div id="left-inbox" class="tabContent" style="display:none;">
+                <h3>Inbox</h3>
+                {% for msg in inbox %}
+                    <a class="previewText" href="?message_id={{ msg.id }}">
+                        <div class="previewMessage">
+                            <div class="messageText">{{ msg.sender.username }}</div>
+                            <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                            <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
+                        </div>
+                    </a>
+                    <hr>
+                {% empty %}
+                    <p>No messages</p>
+                {% endfor %}
+            </div>
+
+            <div id="left-sent" class="tabContent" style="display:none;">
+                <h3>Sent</h3>
+                {% for msg in sent %}
+                    <a class="previewText" href="?message_id={{ msg.id }}">
+                        <div class="previewMessage">
+                            <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                            <div class="messageText">To: {{ msg.receiver.username }}</div>
+                            <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
+                        </div>
+                    </a>
+                    <hr>
+                {% empty %}
+                    <p>No sent messages</p>
+                {% endfor %}
+            </div>
+
+            <div id="left-draft" class="tabContent" style="display:none;">
+                <h3>Draft Messages</h3>
+                {% for msg in drafts %}
+                    <a class="previewText" href="?message_id={{ msg.id }}">
+                        <div class="previewMessage">
+                            Draft
+                            <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                            <div class="messageText">To: {{ msg.receiver.username }}</div>
+                            <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
+                        </div>
+                    </a>
+                    <hr>
+                {% empty %}
+                    <p>No drafts yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="messagesRight">
+        <div id="right-new" class="messagesCard messagesFormCard tabContent">
+            {% if mode == "view" %}
+                <div>
+                    <h3>{{ selected_message.subject }}</h3>
+                    <p><strong>From:</strong> {{ selected_message.sender.username }}</p>
+                    <p><strong>To:</strong> {{ selected_message.receiver.username }}</p>
+                    <hr>
+                    <p>{{ selected_message.body }}</p>
+                </div>
+            {% else %}
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if selected_message and selected_message.is_draft %}
+                        <input type="hidden" name="draft_id" value="{{ selected_message.id }}">
+                    {% endif %}
+
+                    <div class="messagesFormTop">
+                        <div class="messagesField">
+                            <label class="messagesLabel">Recipient Email</label>
+                            <input type="email" name="receiver_email"
+                                   value="{{ selected_message.receiver.email|default:'' }}"
+                                   class="messagesInput">
+                        </div>
+
+                        <div class="messagesField">
+                            <label class="messagesLabel">Subject</label>
+                            <input type="text" name="subject"
+                                   value="{{ selected_message.subject|default:'' }}"
+                                   class="messagesInput">
+                        </div>
+                    </div>
+
+                    <div class="messagesFormMiddle">
+                        <label class="messagesLabel">Message</label>
+                        <textarea name="body" class="messagesTextarea">{{ selected_message.body|default:'' }}</textarea>
+                    </div>
+
+                    <div class="messagesActions">
+                        <button type="reset" class="messagesSecondaryBtn">Cancel</button>
+
+                        {% if selected_message and selected_message.is_draft %}
+                            <button type="submit" name="action" value="delete" class="deleteDraft">
+                                Delete Draft
+                            </button>
+                        {% endif %}
+
+                        <button type="submit"
+                                name="action"
+                                value="draft"
+                                class="messagesPrimaryBtn"
+                                onclick="removeRequired(); checkDraftEmpty(event)">
+                            Save Draft
+                        </button>
+
+                        <button type="submit"
+                                name="action"
+                                value="send"
+                                class="messagesPrimaryBtn"
+                                onclick="addRequired()">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+
+        <div id="right-inbox" class="messagesCard tabContent" style="display:none;">
+            <h3>Inbox Messages</h3>
+            {% for msg in inbox %}
+                <div class="previewMessage" onclick="window.location.href='?message_id={{ msg.id }}'" style="cursor:pointer;">
+                    <div class="messageText">{{ msg.sender.username }}</div>
+                    <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                    <div class="messageText">{{ msg.body|truncatechars:100 }}</div>
+                </div>
+                <hr>
+            {% empty %}
+                <p>No messages in inbox</p>
+            {% endfor %}
+        </div>
+
+        <div id="right-sent" class="messagesCard tabContent" style="display:none;">
+            <h3>Sent Messages</h3>
+            {% for msg in sent %}
+                <div class="previewMessage" onclick="window.location.href='?message_id={{ msg.id }}'" style="cursor:pointer;">
+                    <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                    <div class="messageText">To: {{ msg.receiver.username }}</div>
+                    <div class="messageText">{{ msg.body|truncatechars:100 }}</div>
+                </div>
+                <hr>
+            {% empty %}
+                <p>No sent messages</p>
+            {% endfor %}
+        </div>
+
+        <div id="right-draft" class="messagesCard tabContent" style="display:none;">
+            <h3>Draft Messages</h3>
+            {% for msg in drafts %}
+                <div class="previewMessage" onclick="window.location.href='?message_id={{ msg.id }}'" style="cursor:pointer;">
+                    Draft
+                    <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                    <div class="messageText">To: {{ msg.receiver.username }}</div>
+                    <div class="messageText">{{ msg.body|truncatechars:100 }}</div>
+                </div>
+                <hr>
+            {% empty %}
+                <p>No drafts yet</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleDropdown() {}
+    function switchTab(tab, event) {
+        if (tab === "new") {
+            window.location.href = "/messages/";
+            return;
+        }
+        document.querySelectorAll(".tabContent").forEach(t => t.style.display = "none");
+        document.getElementById("left-" + tab).style.display = "block";
+        document.getElementById("right-" + tab).style.display = "block";
+        document.querySelectorAll(".messagesMenuItem").forEach(btn => btn.classList.remove("activeTab"));
+        event.target.classList.add("activeTab");
+    }
+
+    function addRequired() {
+        document.querySelector('input[name="receiver_email"]').setAttribute("required", "true");
+        document.querySelector('input[name="subject"]').setAttribute("required", "true");
+    }
+
+    function removeRequired() {
+        document.querySelector('input[name="receiver_email"]').removeAttribute("required");
+        document.querySelector('input[name="subject"]').removeAttribute("required");
+    }
+
+    function checkDraftEmpty(event) {
+        const email = document.querySelector('input[name="receiver_email"]').value.trim();
+        const subject = document.querySelector('input[name="subject"]').value.trim();
+        const body = document.querySelector('textarea[name="body"]').value.trim();
+        if (!email && !subject && !body) {
+            event.preventDefault();
+            alert("Draft cannot be empty");
+        }
+    }
+</script>
+
+{% endblock %}

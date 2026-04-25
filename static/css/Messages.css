@@ -1,0 +1,286 @@
+/* MAIN LAYOUT */
+.messagesLayout{
+    display: flex;
+    gap: 25px;
+    padding: 20px;
+
+    width: calc(100% - 40px); /* 👈 leaves ~20px on right */
+    box-sizing: border-box;
+
+    height: calc(100vh - 140px);
+    padding-bottom: 60px;
+}
+/* LEFT COLUMN */
+.messagesLeft{
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; 
+    gap: 20px;
+}
+
+/* RIGHT COLUMN */
+.messagesRight{
+    flex: 1;
+    display: flex;
+    width: 100%;
+}
+
+.messagesRight .messagesCard{
+    flex: 1;
+    width: 100%;
+    max-width: 100%; /* prevents weird cap */
+}
+
+.messagesLeft,
+.messagesRight{
+    min-height: 0;
+}
+
+/* CARD STYLE */
+.messagesCard{
+    background-color: rgba(255,255,255,1);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* MENU CARD */
+.messagesMenuCard{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* BUTTONS */
+.messagesPrimaryBtn{
+    background-color: #1CB3FE;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.messagesPrimaryBtn:hover{
+    background-color: #1593d1;
+}
+
+.messagesSecondaryBtn{
+    background-color: #e5e7eb;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.messagesSecondaryBtn:hover{
+    background-color: #cfd3d8;
+}
+
+/* MENU LIST */
+.messagesMenuList{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.messagesMenuItem{
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.messagesMenuItem:hover{
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* FORM */
+.messagesFormCard{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* KEY FIX */
+    height: 100%;
+}
+
+/* INPUTS */
+.messagesInput{
+    height: 45px;
+    background-color: #f1f3f5;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.messagesInputLarge{
+    height: 50px;
+    background-color: #f1f3f5;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+/* ROW (NAME + EMAIL) */
+.messagesRow{
+    display: flex;
+    gap: 15px;
+}
+
+.messagesRow .messagesInput{
+    flex: 1;
+}
+
+/* TEXTAREA */
+.messagesTextarea{
+    flex: 1;
+    min-height: 200px;
+    height: 100%;
+    background-color: #f1f3f5;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* ACTION BUTTONS */
+.messagesActions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* LABELS */
+.messagesLabel{
+    font-size: 0.95em;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* FIELD WRAPPER */
+.messagesField{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* REAL INPUT RESET */
+.messagesInput,
+.messagesInputLarge,
+.messagesTextarea,
+select.messagesInputLarge{
+    border: none;
+    padding: 10px;
+    font-size: 1em;
+    outline: none;
+    width: 100%;
+}
+
+/* TEXTAREA FIX */
+.messagesTextarea{
+    resize: none;
+    padding-top: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.messagesLeft,
+.messagesRight{
+    display: flex;
+    flex-direction: column;
+}
+
+/* MAKE CARDS FILL SPACE */
+.messagesRight .messagesCard,
+.messagesLeft .messagesCard:last-child{
+    flex: 1;
+    overflow-y: auto;
+}
+
+.messagesInput,
+.messagesInputLarge,
+.messagesTextarea,
+select.messagesInputLarge{
+    border: none;
+    padding: 10px 15px; /* adds left + RIGHT space */
+    font-size: 1em;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box; /* IMPORTANT */
+}
+
+/* GROUP SPACING */
+.messagesFormTop{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.messagesFormMiddle{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1; /* makes textarea expand */
+}
+
+/* MAKE TEXTAREA FILL SPACE */
+.messagesTextarea{
+    flex: 1;
+}
+
+.messagesMenuItem{
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* ACTIVE TAB */
+.activeTab{
+    background-color: rgba(28,179,254,0.2);
+    font-weight: bold;
+}
+
+/* TAB CONTENT */
+.tabContent{
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn{
+    from{ opacity: 0; }
+    to{ opacity: 1; }
+}
+
+.previewMessage{
+    /* border: black solid 2px; */
+    border-radius: 15px;
+    padding: 10px;
+    transition: box-shadow 0.5s ease;
+}
+
+.previewMessage:hover{
+    box-shadow: 0 0 3px rgba(0,0,0,0.3);
+    transition: box-shadow 0.5s ease;
+}
+
+.previewText{
+    text-decoration: none;
+    color: black;
+}
+
+.messageText{
+    padding: 5px;
+}
+
+.deleteDraft{
+    background-color:#ffdddd;
+    color:#a00;
+    transition: 0.3s;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.deleteDraft:hover{
+    background-color: #e6bcbc;
+}
