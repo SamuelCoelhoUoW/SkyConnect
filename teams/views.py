@@ -48,12 +48,30 @@ def team_list(request):
 def team_detail(request, team_id):
     """Display a single team's full profile with tabs"""
     team = get_object_or_404(Team, id=team_id)
-    members = team.members.all()
-    repositories = team.repositories.all()
-    dependencies = Dependency.objects.filter(from_team=team)
-
-    # Tab selection
     active_tab = request.GET.get('tab', 'overview')
+
+    # Members — filter by role if provided
+    role_filter = request.GET.get('role', '')
+    members = team.members.all()
+    if role_filter:
+        members = members.filter(role=role_filter)
+
+    # Repositories — search and sort
+    repo_sort = request.GET.get('repo_sort', 'updated')
+    repo_search = request.GET.get('repo_search', '')
+    repositories = team.repositories.all()
+    if repo_search:
+        repositories = repositories.filter(name__icontains=repo_search)
+    if repo_sort == 'name':
+        repositories = repositories.order_by('name')
+    else:
+        repositories = repositories.order_by('-updated_at')
+
+    # Dependencies — filter by type if provided
+    dep_filter = request.GET.get('dep', '')
+    dependencies = Dependency.objects.filter(from_team=team)
+    if dep_filter:
+        dependencies = dependencies.filter(dependency_type=dep_filter)
 
     return render(request, 'teams/team_detail.html', {
         'team': team,
@@ -61,4 +79,8 @@ def team_detail(request, team_id):
         'repositories': repositories,
         'dependencies': dependencies,
         'active_tab': active_tab,
+        'role_filter': role_filter,
+        'dep_filter': dep_filter,
+        'repo_sort': repo_sort,
+        'repo_search': repo_search,
     })

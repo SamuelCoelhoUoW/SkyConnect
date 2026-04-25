@@ -182,16 +182,21 @@
 <!-- ═══ REPOSITORIES TAB ═══ -->
 {% if active_tab == 'repositories' %}
 
-<div class="repo-filter-bar">
-    <div class="search-wrapper" style="max-width:280px;">
-        <i class="bi bi-search"></i>
-        <input type="text" class="search-input" placeholder="Search repositories....">
+<form method="GET" action="">
+    <input type="hidden" name="tab" value="repositories">
+    <div class="repo-filter-bar">
+        <div class="search-wrapper" style="max-width:280px;">
+            <i class="bi bi-search"></i>
+            <input type="text" name="repo_search" class="search-input"
+                   placeholder="Search repositories...."
+                   value="{{ repo_search }}">
+        </div>
+        <select name="repo_sort" class="filter-select" onchange="this.form.submit()">
+            <option value="updated" {% if repo_sort == 'updated' %}selected{% endif %}>Sort by: Last Updated</option>
+            <option value="name" {% if repo_sort == 'name' %}selected{% endif %}>Sort by: Name</option>
+        </select>
     </div>
-    <select class="filter-select">
-        <option>Sort by: Last Updated</option>
-        <option>Sort by: Name</option>
-    </select>
-</div>
+</form>
 
 {% for repo in repositories %}
     <div class="repo-card">
