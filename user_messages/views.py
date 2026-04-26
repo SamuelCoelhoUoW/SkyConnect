@@ -6,15 +6,6 @@ from .models import user_messages
 
 @login_required
 def messages_page(request):
-    if request.method == "POST":
-        if request.POST.get("delete_btn"):
-            return delete_message(request)
-
-        if request.POST.get("action"):
-            return save_or_update_message(request)
-
-        return redirect('/messages/')
-
     inbox = user_messages.objects.filter(receiver=request.user, is_draft=False)
     sent = user_messages.objects.filter(sender=request.user, is_draft=False)
     drafts = user_messages.objects.filter(sender=request.user, is_draft=True)
@@ -24,149 +15,82 @@ def messages_page(request):
     mode = "new"
 
     if message_id:
-        try:
-            selected_message = user_messages.objects.get(id=message_id)
-            if selected_message.sender != request.user and selected_message.receiver != request.user:
-                selected_message = None
+        selected_message = user_messages.objects.filter(id=message_id).first()
+        if selected_message and (selected_message.sender == request.user or selected_message.receiver == request.user):
+            if selected_message.is_draft and selected_message.sender == request.user:
+                mode = "edit"
             else:
-                if selected_message.is_draft and selected_message.sender == request.user:
-                    mode = "edit"
-                else:
-                    mode = "view"
-        except user_messages.DoesNotExist:
-            pass
+                mode = "view"
+        else:
+            selected_message = None
 
-    # -----------------------
-    # HANDLE FORM SUBMIT
-    # -----------------------
-    if request.method == 'POST':
-
+    if request.method == "POST":
+        action = request.POST.get("action")
         draft_id = request.POST.get("draft_id")
-        action = request.POST.get('action')
-        receiver_email = request.POST.get('receiver_email')
-        subject = request.POST.get('subject')
-        body = request.POST.get('body')
+        receiver_email = request.POST.get("receiver_email", "").strip()
+        subject = request.POST.get("subject", "").strip()
+        body = request.POST.get("body", "").strip()
 
-        receiver = User.objects.filter(email=receiver_email).first()
-
-        draft_id = request.POST.get('draft_id')
-
-        # DELETE DRAFT
         if action == "delete" and draft_id:
             draft = user_messages.objects.filter(
                 id=draft_id,
                 sender=request.user,
                 is_draft=True
             ).first()
-
             if draft:
                 draft.delete()
+            return redirect("/messages/")
 
-            return redirect('/messages/')
+        receiver = User.objects.filter(email=receiver_email).first() if receiver_email else None
 
-        # -----------------------
-        # SEND VALIDATION
-        # -----------------------
         if action == "send":
-            if not receiver_email or not receiver or not subject:
-                return redirect('/messages/')
+            if not receiver or not subject:
+                return redirect("/messages/")
 
-        # -----------------------
-        # DRAFT VALIDATION
-        # -----------------------
+            if draft_id:
+                msg = get_object_or_404(user_messages, id=draft_id, sender=request.user, is_draft=True)
+                msg.receiver = receiver
+                msg.subject = subject
+                msg.body = body
+                msg.is_draft = False
+                msg.save()
+            else:
+                user_messages.objects.create(
+                    sender=request.user,
+                    receiver=receiver,
+                    subject=subject,
+                    body=body,
+                    is_draft=False
+                )
+            return redirect("/messages/")
+
         if action == "draft":
             if not receiver_email and not subject and not body:
-                # ALL EMPTY → block
-                return redirect('/messages/')
+                return redirect("/messages/")
 
-        if draft_id:
-            # UPDATE existing draft
-            draft = get_object_or_404(user_messages, id=draft_id, sender=request.user)
+            receiver = User.objects.filter(email=receiver_email).first() if receiver_email else None
 
-            draft.receiver = receiver
-            draft.subject = subject
-            draft.body = body
-            draft.is_draft = (action == "draft")
+            if draft_id:
+                draft = get_object_or_404(user_messages, id=draft_id, sender=request.user, is_draft=True)
+                draft.receiver = receiver
+                draft.subject = subject
+                draft.body = body
+                draft.is_draft = True
+                draft.save()
+            else:
+                user_messages.objects.create(
+                    sender=request.user,
+                    receiver=receiver,
+                    subject=subject,
+                    body=body,
+                    is_draft=True
+                )
+            return redirect("/messages/")
 
-            draft.save()
-        else:
-            # CREATE new message
-            user_messages.objects.create(
-                sender=request.user,
-                receiver=receiver,
-                subject=subject,
-                body=body,
-                is_draft=(action == 'draft')
-            )
-
-        return redirect('/messages/')
-
-    return render(request, 'MessagePage.html', {
-        'inbox': inbox,
-        'sent': sent,
-        'drafts': drafts,
-        'selected_message': selected_message,
-        'mode': mode,
-        'inbox_empty': not inbox.exists()  #  pass to template
+    return render(request, "MessagePage.html", {
+        "inbox": inbox,
+        "sent": sent,
+        "drafts": drafts,
+        "selected_message": selected_message,
+        "mode": mode,
     })
-
-def delete_message(request):
-    delete_id = request.POST.get("delete_id")
-
-    if not delete_id:
-        return redirect('/messages/')
-
-    try:
-        msg = user_messages.objects.get(id=delete_id, sender=request.user)
-        msg.delete()
-    except user_messages.DoesNotExist:
-        pass
-
-    return redirect('/messages/')
-
-
-def save_or_update_message(request):
-    message_id = request.POST.get("message_id")
-    action = request.POST.get("action")
-
-    subject = request.POST.get("subject")
-    body = request.POST.get("body")
-    receiver_email = request.POST.get("receiver_email")
-
-    if request.POST.get("delete_btn"):
-        return redirect('/messages/')
-
-    if action not in ["send", "draft"]:
-        return redirect('/messages/')
-
-    if action == "send":
-        if not subject or not receiver_email:
-            return redirect('/messages/')
-
-    receiver = None
-    if receiver_email:
-        receiver = User.objects.filter(email=receiver_email).first()
-        if not receiver and action == "send":
-            return redirect('/messages/')
-
-    if message_id:
-        try:
-            msg = user_messages.objects.get(id=message_id, sender=request.user)
-            msg.subject = subject
-            msg.body = body
-            msg.receiver = receiver
-            if action == "send":
-                msg.is_draft = False
-            msg.save()
-        except user_messages.DoesNotExist:
-            pass
-    else:
-        user_messages.objects.create(
-            sender=request.user,
-            receiver=receiver,
-            subject=subject,
-            body=body,
-            is_draft=(action == "draft")
-        )
-
-    return redirect('/messages/')
