@@ -26,18 +26,15 @@
         </div>
     </div>
     <div class="team-banner-actions">
-        {% if team.email %}
-            <a href="mailto:{{ team.email }}" class="btn-message-team">
-                <i class="bi bi-envelope-fill"></i> Message Team
-            </a>
-        {% else %}
-            <span class="btn-message-team">
-                <i class="bi bi-envelope-fill"></i> Message Team
-            </span>
-        {% endif %}
-        <a href="/schedule/" class="btn-schedule">
-            <i class="bi bi-calendar-fill"></i> Schedule Meeting
+
+        <a href="/messages/" class="btn-message-team">
+            <i class="bi bi-envelope-fill"></i> Message Team
         </a>
+
+        <span class="btn-schedule" title="Schedule feature coming soon" style="opacity:0.6">
+            <i class="bi bi-calendar-fill"></i> Schedule Meeting
+        </span>
+
     </div>
 </div>
 
@@ -151,7 +148,6 @@
 
 <div class="members-grid">
     {% for member in members %}
-        {% if not role_filter or member.role == role_filter %}
         <div class="member-card">
             <div class="member-avatar">
                 <i class="bi bi-person-fill"></i>
@@ -171,7 +167,6 @@
                 {% endif %}
             </div>
         </div>
-        {% endif %}
     {% empty %}
         <div class="empty-state">No members found.</div>
     {% endfor %}
@@ -216,10 +211,6 @@
 {% if active_tab == 'dependencies' %}
 
 <div class="dep-filter-bar">
-    <div class="search-wrapper" style="max-width:240px;">
-        <i class="bi bi-search"></i>
-        <input type="text" class="search-input" placeholder="Search teams....">
-    </div>
     <a href="?tab=dependencies" class="role-pill {% if not dep_filter %}active{% endif %}">All Dependencies</a>
     <a href="?tab=dependencies&dep=upstream" class="role-pill {% if dep_filter == 'upstream' %}active{% endif %}">Upstream</a>
     <a href="?tab=dependencies&dep=downstream" class="role-pill {% if dep_filter == 'downstream' %}active{% endif %}">Downstream</a>
