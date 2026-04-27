@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/forgotpassword.css' %}">
+</head>
+<body>
+    <div class="auth-card">
+        <div class="logo-container">
+            <div class="logo-icon-wrapper">
+                <i class="bi bi-cloud-fill logo-icon"></i>
+            </div>
+            <span class="logo-text">Sky Connect</span>
+        </div>
+
+        <h1 class="page-title">Check your inbox</h1>
+        <p class="page-subtitle">
+            We’ve sent you an email with your secure reset link!
+        </p>
+
+        <div class="info-box text-center">
+            Didn’t receive the email? Check your spam folder or request a new link
+        </div>
+
+        <button class="btn btn-primary w-100 mb-3">Request new link</button>
+        <a href="/signin/" class="btn btn-primary w-100">Return to sign in</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

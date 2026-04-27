@@ -1,8 +1,10 @@
 # accounts/urls.py
 from django.urls import path
-from .views import login_view, signup_view
+from .views import signin_view, signup_view, forgotpassword_view, reset_view
 
 urlpatterns = [
-    path('login/', login_view, name='login'),
+    path('signin/', signin_view, name='login'),
     path('signup/', signup_view, name='signup'),
+    path('forgotpassword/' ,forgotpassword_view, name='forgotpassword'),
+    path('reset/', reset_view, name='reset'),
 ]

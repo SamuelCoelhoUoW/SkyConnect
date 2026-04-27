@@ -1,6 +1,7 @@
 # accounts/views.py
 # Author: Samuel Coelho (w2078214)
-# Co-authored: Group element - login and signup functionality
+# Co-authored: Theoayman Haid De Azevedo (w2116344)
+# Group element - login and signup functionality
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
 
-def login_view(request):
+def signin_view(request):
     """Handle user login - displays form on GET, processes on POST"""
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -17,7 +18,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             return redirect('team_list')
-    return render(request, 'login.html')
+    return render(request, 'signin.html')
 
 
 def signup_view(request):
@@ -34,6 +35,16 @@ def signup_view(request):
                 email=email,
                 password=password
             )
-            return redirect('login')
+            return redirect('/login/')
 
     return render(request, 'signup.html')
+
+def forgotpassword_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        if email:
+            return redirect("/reset/")
+    return render(request, "forgotpassword.html")
+
+def reset_view(request):
+    return render(request, 'reset.html')
