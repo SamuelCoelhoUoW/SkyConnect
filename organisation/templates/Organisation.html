@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Organisation – SkyConnect{% endblock %}
+{% block page_title %}<h1 class="page-heading">Organisation</h1>{% endblock %}
+{% block nav_org %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/Organisation.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+<script>
+const RAW_NODES = {{ nodes_json|safe }};
+const RAW_EDGES = {{ edges_json|safe }};
+let network = null;
+
+function buildGraph(nodes, edges) {
+    const container = document.getElementById('orgChart');
+    if (!container) return;
+    const visNodes = nodes.map(n => {
+        const bg = (n.color && n.color.background) ? n.color.background : (n.color || '#1CB3FE');
+        return {
+            id: n.id, label: n.label,
+            title: '<b>' + n.label + '</b><br>Dept: ' + (n.department||'') + '<br>Manager: ' + (n.manager||''),
+            department: n.department, manager: n.manager, type: n.type,
+            color: { background: bg, border: bg,
+                     highlight: { background: '#0a5c7a', border: '#0a5c7a' },
+                     hover:      { background: '#1890d0', border: '#1890d0' } },
+            font: { color: '#ffffff', size: 14, face: 'Arial' },
+            shape: 'box', margin: { top: 12, bottom: 12, left: 16, right: 16 },
+            shadow: { enabled: true, color: 'rgba(0,0,0,0.18)', size: 8, x: 2, y: 2 },
+        };
+    });
+    const visEdges = edges.map(e => ({
+        from: e.from, to: e.to, arrows: 'to',
+        color: { color: '#aaa', highlight: '#1CB3FE' }, width: 2,
+        smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.4 },
+    }));
+    const options = {
+        layout: { hierarchical: { enabled: visEdges.length > 0, direction: 'LR',
+            sortMethod: 'directed', levelSeparation: 230, nodeSpacing: 140 } },
+        physics: { enabled: false },
+        interaction: { hover: true, tooltipDelay: 100, keyboard: true },
+    };
+    if (network) network.destroy();
+    network = new vis.Network(container,
+        { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) }, options);
+    network.on('click', params => {
+        if (params.nodes.length > 0) {
+            const n = visNodes.find(x => x.id === params.nodes[0]);
+            if (n) {
+                document.getElementById('nd-name').textContent    = n.label;
+                document.getElementById('nd-dept').textContent    = n.department || '—';
+                document.getElementById('nd-manager').textContent = n.manager    || '—';
+                document.getElementById('nodeDetail').style.display = 'block';
+            }
+        } else { document.getElementById('nodeDetail').style.display = 'none'; }
+    });
+}
+function switchView(mode, e) {
+    document.getElementById('viewInput').value = mode;
+    document.getElementById('networkView').classList.toggle('hidden', mode !== 'network');
+    document.getElementById('gridView').classList.toggle('hidden',    mode === 'network');
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    if (e) e.target.classList.add('active');
+    if (mode === 'network' && !network) buildGraph(RAW_NODES, RAW_EDGES);
+}
+function zoomIn()   { if (network) network.moveTo({ scale: network.getScale() * 1.3 }); }
+function zoomOut()  { if (network) network.moveTo({ scale: network.getScale() / 1.3 }); }
+function fitGraph() { if (network) network.fit({ animation: { duration: 400 } }); }
+function refreshGraph() {
+    fetch('/organisation/data/?' + new URLSearchParams(window.location.search))
+        .then(r => r.json()).then(d => buildGraph(d.nodes, d.edges));
+}
+function toggleFullscreen() {
+    const el = document.getElementById('networkView');
+    if (!document.fullscreenElement) el.requestFullscreen(); else document.exitFullscreen();
+}
+function exportMap() {
+    if (!network) return;
+    const c = document.querySelector('#orgChart canvas');
+    if (!c) return;
+    const a = document.createElement('a');
+    a.download = 'org-map.png'; a.href = c.toDataURL('image/png'); a.click();
+}
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('networkView').classList.contains('hidden'))
+        buildGraph(RAW_NODES, RAW_EDGES);
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form method="GET" action="{% url 'organisation' %}" id="filterForm">
+    <input type="hidden" name="view" id="viewInput" value="{{ view_mode }}">
+    <div class="org-filter-bar">
+        <div class="filter-dropdowns">
+
+            <div class="filter-group">
+                <label class="filter-label">DEPARTMENTS ▾</label>
+                <select name="department" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept_id == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">TEAM TYPES ▾</label>
+                <select name="team_type" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Types</option>
+                    {% for tt in team_types %}
+                    <option value="{{ tt.id }}" {% if type_id == tt.id|stringformat:"s" %}selected{% endif %}>{{ tt.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">STATUS ▾</label>
+                <select name="status" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if status_val == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">DEPENDENCIES ▾</label>
+                <select name="dep_filter" class="filter-select">
+                    <option value="">All</option>
+                    <option value="upstream"   {% if request.GET.dep_filter == "upstream"   %}selected{% endif %}>Has Upstream</option>
+                    <option value="downstream" {% if request.GET.dep_filter == "downstream" %}selected{% endif %}>Has Downstream</option>
+                </select>
+            </div>
+
+        </div>
+        <div class="org-search-wrap">
+            <input type="text" name="search" placeholder="Search teams, departments, managers…"
+                   class="org-search-input" value="{{ search }}">
+            <button type="submit" class="org-search-btn">🔍</button>
+        </div>
+    </div>
+</form>
+
+{% if selected_dept %}
+<div class="dept-info-bar">
+    <div class="dept-info-cell">
+        <span class="dept-info-label">Department</span>
+        <span class="dept-info-value">{{ selected_dept.name }}</span>
+    </div>
+    <div class="dept-info-cell">
+        <span class="dept-info-label">Leader</span>
+        <span class="dept-info-value">{{ selected_dept.leader|default:"—" }}</span>
+    </div>
+    <div class="dept-info-cell">
+        <span class="dept-info-label">Teams</span>
+        <span class="dept-info-value">{{ selected_dept.team_count_val }}</span>
+    </div>
+    {% if selected_dept.description %}
+    <div class="dept-info-cell wide">
+        <span class="dept-info-label">About</span>
+        <span class="dept-info-value">{{ selected_dept.description }}</span>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="org-map-header">
+    <span class="org-map-label">Organisation Map</span>
+    <div class="org-map-controls">
+        <button class="view-btn {% if view_mode == 'grid' %}active{% endif %}"  onclick="switchView('grid', event)">⊞ Grid View</button>
+        <button class="view-btn {% if view_mode != 'grid' %}active{% endif %}"  onclick="switchView('network', event)">🔗 Network View</button>
+        <button class="ctrl-btn" onclick="exportMap()">⬇ Export</button>
+    </div>
+</div>
+
+<div id="networkView" class="org-map-wrapper {% if view_mode == 'grid' %}hidden{% endif %}">
+    <div class="map-zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()"           title="Zoom in">+</button>
+        <button class="zoom-btn" onclick="zoomOut()"          title="Zoom out">−</button>
+        <button class="zoom-btn" onclick="fitGraph()"         title="Fit all">⤢</button>
+        <button class="zoom-btn" onclick="refreshGraph()"     title="Refresh">↺</button>
+        <button class="zoom-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+    </div>
+    <div id="orgChart"></div>
+    <div class="legend-box">
+        {% if type_legend %}
+        <strong class="legend-title">Team Types</strong>
+        {% for tt in type_legend %}
+        <div class="legend-item">
+            <span class="legend-dot" style="background:{{ tt.color }}"></span>
+            <span>{{ tt.name }}</span>
+        </div>
+        {% endfor %}
+        <div class="legend-divider"></div>
+        {% endif %}
+        <strong class="legend-title">Departments</strong>
+        {% for dept, color in dept_legend %}
+        <div class="legend-item">
+            <span class="legend-dot" style="background:{{ color }}"></span>
+            <span>{{ dept.name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="node-detail-panel" id="nodeDetail" style="display:none;">
+        <button class="close-panel" onclick="document.getElementById('nodeDetail').style.display='none'">✕</button>
+        <h3 id="nd-name"></h3>
+        <p><strong>Department:</strong> <span id="nd-dept"></span></p>
+        <p><strong>Manager:</strong>    <span id="nd-manager"></span></p>
+    </div>
+</div>
+
+<div id="gridView" class="org-grid-section {% if view_mode != 'grid' %}hidden{% endif %}">
+    <div class="org-team-grid">
+        {% for item in teams_with_meta %}
+        <div class="org-team-card">
+            <div class="org-card-header" style="background:{{ item.color }}">
+                <span class="org-card-name">{{ item.team.name }}</span>
+                <span class="org-card-badge">{% if item.type_name %}{{ item.type_name }}{% else %}{{ item.team.department.name }}{% endif %}</span>
+            </div>
+            <div class="org-card-body">
+                <div class="org-card-row"><span class="org-card-label">Manager</span><span class="org-card-val">{{ item.team.manager }}</span></div>
+                <div class="org-card-row"><span class="org-card-label">Status</span>
+                    <span class="org-status-badge org-status-{{ item.team.status }}">{{ item.team.get_status_display }}</span>
+                </div>
+                {% if item.team.description %}
+                <p class="org-card-desc">{{ item.team.description|truncatechars:80 }}</p>
+                {% endif %}
+                {% if item.upstream_count or item.downstream_count %}
+                <div class="org-dep-tags">
+                    {% if item.upstream_count %}<span class="org-dep-tag org-dep-up">↑ {{ item.upstream_count }} upstream</span>{% endif %}
+                    {% if item.downstream_count %}<span class="org-dep-tag org-dep-down">↓ {{ item.downstream_count }} downstream</span>{% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="org-no-results">No teams match your filters.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% if selected_dept %}
+<div class="dep-section-wrap">
+    <h3 class="dep-section-title">Team Dependencies — {{ selected_dept.name }}</h3>
+    <div class="dep-list">
+        {% for item in teams_with_meta %}
+        <div class="dep-row">
+            <div class="dep-team-name">
+                <span class="dep-dot" style="background:{{ item.color }}"></span>
+                <strong>{{ item.team.name }}</strong>
+                <span class="dep-role-badge">{{ item.team.department.name }}</span>
+            </div>
+            <div class="dep-detail">
+                <div class="dep-chips">
+                    {% if item.upstream_teams %}
+                        <span class="dep-label upstream-label">↑ Depends on:</span>
+                        {% for t in item.upstream_teams %}<span class="dep-chip upstream-chip">{{ t.name }}</span>{% endfor %}
+                    {% endif %}
+                    {% if item.downstream_teams %}
+                        <span class="dep-label downstream-label">↓ Required by:</span>
+                        {% for t in item.downstream_teams %}<span class="dep-chip downstream-chip">{{ t.name }}</span>{% endfor %}
+                    {% endif %}
+                    {% if not item.upstream_teams and not item.downstream_teams %}
+                        <span class="dep-none">No dependencies</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
