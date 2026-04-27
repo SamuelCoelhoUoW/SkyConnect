@@ -256,3 +256,67 @@ class TeamDependencyTestCase(TestCase):
             {'tab': 'dependencies', 'dep': 'downstream'}
         )
         self.assertNotContains(response, 'Cloud Infrastructure')
+
+class IntegrationTestCase(TestCase):
+    """Test overall application integration between Teams and Messages"""
+
+    def setUp(self):
+        """Set up test user for integration testing"""
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        self.department = Department.objects.create(name='Engineering')
+        self.team = Team.objects.create(
+            name='Cloud Infrastructure',
+            department=self.department,
+            manager='Kevin Matsuura',
+            status='active'
+        )
+
+    def test_login_redirects_to_team_list(self):
+        """Test that successful login redirects to the Teams page"""
+        response = self.client.post('/login/', {
+            'username': 'testuser',
+            'password': 'testpass123'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/teams/')
+
+    def test_teams_page_accessible_after_login(self):
+        """Test Teams page loads after authentication"""
+        self.client.login(username='testuser', password='testpass123')
+        response = self.client.get('/teams/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_navigation_from_teams_to_messages(self):
+        """Test that base template contains link to messages page"""
+        self.client.login(username='testuser', password='testpass123')
+        response = self.client.get('/teams/')
+        self.assertContains(response, '/messages/')
+
+    def test_admin_accessible_to_superuser(self):
+        """Test that admin panel is accessible to superuser"""
+        admin_user = User.objects.create_superuser(
+            username='admin',
+            password='adminpass123',
+            email='admin@test.com'
+        )
+        self.client.login(username='admin', password='adminpass123')
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_signup_then_login_flow(self):
+        """Test user can sign up and then log in successfully"""
+        self.client.post('/signup/', {
+            'email': 'newuser@test.com',
+            'username': 'newuser',
+            'password': 'testpass123',
+            'confirm_password': 'testpass123'
+        })
+        response = self.client.post('/login/', {
+            'username': 'newuser',
+            'password': 'testpass123'
+        })
+        self.assertEqual(response.status_code, 302)
