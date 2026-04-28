@@ -40,3 +40,10 @@ body {
     border: none; 
     padding: 0.6rem; 
 }
+
+.adminlogin{
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+    padding: 15px;
+}

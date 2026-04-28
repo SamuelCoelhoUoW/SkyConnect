@@ -1,6 +1,3 @@
-<!-- Author: Theoayman Haid De Azevedo -->
-<!-- Individual element - wrote the code -->
-
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Messages{% endblock %}
@@ -19,66 +16,10 @@
                 <div class="messagesMenuItem" onclick="switchTab('draft', event)">Draft</div>
             </div>
         </div>
-
-        <div class="messagesCard">
-            <div id="left-new" class="tabContent">
-                <h3>Recent Messages</h3>
-                <p>Start a new conversation</p>
-            </div>
-
-            <div id="left-inbox" class="tabContent" style="display:none;">
-                <h3>Inbox</h3>
-                {% for msg in inbox %}
-                    <a class="previewText" href="?message_id={{ msg.id }}">
-                        <div class="previewMessage">
-                            <div class="messageText">{{ msg.sender.username }}</div>
-                            <strong class="previewText messageText">{{ msg.subject }}</strong><br>
-                            <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
-                        </div>
-                    </a>
-                    <hr>
-                {% empty %}
-                    <p>No messages</p>
-                {% endfor %}
-            </div>
-
-            <div id="left-sent" class="tabContent" style="display:none;">
-                <h3>Sent</h3>
-                {% for msg in sent %}
-                    <a class="previewText" href="?message_id={{ msg.id }}">
-                        <div class="previewMessage">
-                            <strong class="previewText messageText">{{ msg.subject }}</strong><br>
-                            <div class="messageText">To: {{ msg.receiver.username }}</div>
-                            <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
-                        </div>
-                    </a>
-                    <hr>
-                {% empty %}
-                    <p>No sent messages</p>
-                {% endfor %}
-            </div>
-
-            <div id="left-draft" class="tabContent" style="display:none;">
-                <h3>Draft Messages</h3>
-                {% for msg in drafts %}
-                    <a class="previewText" href="?message_id={{ msg.id }}">
-                        <div class="previewMessage">
-                            Draft
-                            <strong class="previewText messageText">{{ msg.subject }}</strong><br>
-                            <div class="messageText">To: {{ msg.receiver.username }}</div>
-                            <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
-                        </div>
-                    </a>
-                    <hr>
-                {% empty %}
-                    <p>No drafts yet</p>
-                {% endfor %}
-            </div>
-        </div>
     </div>
 
     <div class="messagesRight">
-        <div id="right-new" class="messagesCard messagesFormCard tabContent">
+        <div id="right-new" class="messagesCard tabContent">
             {% if mode == "view" %}
                 <div>
                     <h3>{{ selected_message.subject }}</h3>
@@ -192,14 +133,16 @@
 
 <script>
     function toggleDropdown() {}
+
     function switchTab(tab, event) {
         if (tab === "new") {
             window.location.href = "/messages/";
             return;
         }
+
         document.querySelectorAll(".tabContent").forEach(t => t.style.display = "none");
-        document.getElementById("left-" + tab).style.display = "block";
         document.getElementById("right-" + tab).style.display = "block";
+
         document.querySelectorAll(".messagesMenuItem").forEach(btn => btn.classList.remove("activeTab"));
         event.target.classList.add("activeTab");
     }

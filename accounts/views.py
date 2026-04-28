@@ -1,6 +1,6 @@
 # accounts/views.py
 # Author: Samuel Coelho (w2078214) 
-# Group element - signin and signup functionality
+# Group element - login and signup functionality
 
 # Co-authored: Theoayman Haid De Azevedo (w2116344) 
 # Group element - add view request for the forgotpassword and reset pages
@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
 
-def signin_view(request):
+def login_view(request):
     """Handle user login - displays form on GET, processes on POST"""
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -20,7 +20,7 @@ def signin_view(request):
         if user is not None:
             login(request, user)
             return redirect('/dashboard/')
-    return render(request, 'signin.html')
+    return render(request, 'login.html')
 
 
 def signup_view(request):
