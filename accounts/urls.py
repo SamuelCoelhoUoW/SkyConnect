@@ -1,4 +1,5 @@
 # accounts/urls.py
+#Co-authored: Samuel Coelho - signin and signup, Theoayman Haid De Azevedo - forgotpassword and reset view
 from django.urls import path
 from .views import signin_view, signup_view, forgotpassword_view, reset_view
 

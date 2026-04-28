@@ -1,6 +1,6 @@
 # accounts/views.py
 # Author: Samuel Coelho (w2078214) 
-# Group element - login and signup functionality
+# Group element - signin and signup functionality
 
 # Co-authored: Theoayman Haid De Azevedo (w2116344) 
 # Group element - add view request for the forgotpassword and reset pages
