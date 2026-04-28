@@ -1,3 +1,6 @@
+# Author: Theoayman Haid De Azevedo
+# Individual element - wrote the code
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -16,7 +19,6 @@ class user_messages(models.Model):
         blank=True
     )
 
-    # ✅ FIX: allow empty subject for drafts
     subject = models.CharField(
         max_length=255,
         blank=True,
@@ -33,5 +35,5 @@ class user_messages(models.Model):
     is_draft = models.BooleanField(default=False)
 
     def __str__(self):
-        # ✅ Prevent None showing in admin
+
         return self.subject if self.subject else "(No Subject)"

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'teams',
     'user_messages',
     'organisation',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

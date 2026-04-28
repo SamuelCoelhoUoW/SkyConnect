@@ -1,3 +1,6 @@
+/* Author: Theoayman Haid De Azevedo
+Individual element - wrote the code */
+
 /* MAIN LAYOUT */
 .messagesLayout{
     display: flex;
@@ -43,6 +46,12 @@
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.layoutCard{
+    background-color: transparent;
+    border-radius: 15px;
+    padding: 20px;
 }
 
 /* MENU CARD */
@@ -253,12 +262,12 @@ select.messagesInputLarge{
     /* border: black solid 2px; */
     border-radius: 15px;
     padding: 10px;
-    transition: box-shadow 0.5s ease;
+    transition: box-shadow 1s ease;
 }
 
 .previewMessage:hover{
     box-shadow: 0 0 3px rgba(0,0,0,0.3);
-    transition: box-shadow 0.5s ease;
+    transition: box-shadow 1s ease;
 }
 
 .previewText{

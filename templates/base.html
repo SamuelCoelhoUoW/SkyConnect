@@ -24,6 +24,10 @@
         </div>
 
         <nav class="sidebar-nav">
+            <a href="/dashboard/" class="nav-item {% block nav_dashboard %}{% endblock %}">
+                <i class="bi bi-house-fill"></i>
+                <span>Dashboard</span>
+            </a>
             <a href="/teams/" class="nav-item {% block nav_teams %}{% endblock %}">
                 <i class="bi bi-people-fill"></i>
                 <span>Teams</span>
@@ -35,6 +39,10 @@
             <a href="/messages/" class="nav-item {% block nav_messages %}{% endblock %}">
                 <i class="bi bi-chat-dots-fill"></i>
                 <span>Messages</span>
+            </a>
+             <a href="/reports/" class="nav-item {% block nav_reports %}{% endblock %}">
+                <i class="bi bi-file-earmark-text-fill"></i>
+                <span>Reports</span>
             </a>
             <a href="/schedule/" class="nav-item {% block nav_schedule %}{% endblock %}">
                 <i class="bi bi-calendar-fill"></i>

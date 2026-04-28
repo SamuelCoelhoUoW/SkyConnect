@@ -1,0 +1,89 @@
+<!-- Author: Theoayman Haid De Azevedo -->
+<!-- Individual element - wrote the code -->
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}<h1>Welcome, {{ user.username }}!</h1>{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/Messages.css' %}">
+<link rel="stylesheet" href="{% static 'css/dash.css' %}">
+
+<div class="dashboard-search-row">        
+    <h2>Search</h2>
+    <form method="get" action="{% url 'dashboard_search' %}">
+    <div class="search-wrapper">
+        <i class="bi bi-search"></i>
+        <input type="text" name="search" class="search-input" placeholder="Search teams, departments, or managers...">
+    </div>
+</form>
+</div>
+
+<div class="dashboard-actions">
+    <a href="/teams/" class="dashboard-action-card action-card-blue">
+        <div class="action-icon"><i class="bi bi-search"></i></div>
+        <div>
+            <h3>Find a Team</h3>
+            <p>Search and filter through all the teams</p>
+        </div>
+    </a>
+
+    <a href="/organisation/" class="dashboard-action-card action-card-dark">
+        <div class="action-icon"><i class="bi bi-diagram-3-fill"></i></div>
+        <div>
+            <h3>View Map</h3>
+            <p>Explore hierarchies and dependencies</p>
+        </div>
+    </a>
+
+    <a href="/messages/" class="dashboard-action-card action-card-light">
+        <div class="action-icon"><i class="bi bi-chat-dots-fill"></i></div>
+        <div>
+            <h3>Contact Teams</h3>
+            <p>Quick access to team communication</p>
+        </div>
+    </a>
+</div>
+
+<section class="dashboard-panel overview-panel">
+    <div class="section-head">
+        <h2>Quick Overview</h2>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-box">
+            <span class="stat-label">Teams</span>
+            <span class="stat-value">24</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Active</span>
+            <span class="stat-value">18</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Managers</span>
+            <span class="stat-value">9</span>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-panel inbox-panel">
+    <h3>Inbox Messages</h3>
+
+    <div class="inbox-scroll">
+        {% for msg in inbox %}
+            <a class="previewText" href="{% url 'messages' %}?message_id={{ msg.id }}">
+                <div class="previewMessage">
+                    <div class="messageText">{{ msg.sender.username }}</div>
+                    <strong class="previewText messageText">{{ msg.subject }}</strong><br>
+                    <div class="messageText">{{ msg.body|truncatechars:20 }}</div>
+                </div>
+            </a>
+            <hr>
+        {% empty %}
+            <p>No messages in inbox</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

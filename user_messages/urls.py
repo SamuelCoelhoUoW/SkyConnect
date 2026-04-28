@@ -1,3 +1,6 @@
+# Author: Theoayman Haid De Azevedo
+# Individual element - wrote the code
+
 from django.urls import path
 from .views import messages_page
 

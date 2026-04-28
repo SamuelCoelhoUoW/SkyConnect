@@ -1,7 +1,9 @@
 # accounts/views.py
-# Author: Samuel Coelho (w2078214)
-# Co-authored: Theoayman Haid De Azevedo (w2116344)
+# Author: Samuel Coelho (w2078214) 
 # Group element - login and signup functionality
+
+# Co-authored: Theoayman Haid De Azevedo (w2116344) 
+# Group element - add view request for the forgotpassword and reset pages
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -17,7 +19,7 @@ def signin_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('team_list')
+            return redirect('/dashboard/')
     return render(request, 'signin.html')
 
 

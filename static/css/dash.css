@@ -1,0 +1,138 @@
+/* Author: Theoayman Haid De Azevedo
+Individual element - wrote the code */
+
+.dashboard-search-row {
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-search {
+    max-width: 520px;
+}
+
+.dashboard-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-action-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 1.25rem 1.4rem;
+    border-radius: 14px;
+    color: white;
+    text-decoration: none;
+    min-height: 120px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-action-card:hover {
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.action-card-blue {
+    background: linear-gradient(135deg, #2f5ccf 0%, #39b6e8 100%);
+}
+
+.action-card-dark {
+    background: linear-gradient(135deg, #3b6edb 0%, #2357a8 100%);
+}
+
+.action-card-light {
+    background: linear-gradient(135deg, #3b65c7 0%, #63c5f5 100%);
+}
+
+.action-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.dashboard-action-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.dashboard-action-card p {
+    font-size: 0.92rem;
+    margin: 0;
+    opacity: 0.95;
+}
+
+.dashboard-panel {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.overview-panel {
+    margin-bottom: 20px;
+}
+
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.section-head h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.stat-box {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.stat-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dark);
+}   
+
+.inbox-panel {
+    margin-top: 20px;
+}
+
+.inbox-scroll {
+    max-height: 290px;
+    overflow-y: auto;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+.page-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 0;
+    flex: 1;
+}
