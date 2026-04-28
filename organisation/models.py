@@ -1,3 +1,5 @@
+# Author: Ar-rahim Mozumdar w2063830
+
 from django.db import models
 from teams.models import Team
 

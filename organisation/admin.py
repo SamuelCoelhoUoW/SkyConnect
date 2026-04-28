@@ -1,3 +1,5 @@
+# Author: Ar-rahim Mozumdar w2063830
+
 from django.contrib import admin
 from .models import TeamType, TeamTypeAssignment
 
