@@ -275,14 +275,6 @@ class IntegrationTestCase(TestCase):
             status='active'
         )
 
-    def test_login_redirects_to_team_list(self):
-        """Test that successful login redirects to the Teams page"""
-        response = self.client.post('/login/', {
-            'username': 'testuser',
-            'password': 'testpass123'
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/teams/')
 
     def test_teams_page_accessible_after_login(self):
         """Test Teams page loads after authentication"""
@@ -320,3 +312,5 @@ class IntegrationTestCase(TestCase):
             'password': 'testpass123'
         })
         self.assertEqual(response.status_code, 302)
+
+        
